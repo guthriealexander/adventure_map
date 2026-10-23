@@ -143,6 +143,8 @@ footer { border-top: 3px double var(--ink); padding-top: 14px; font-size: 12.5px
       <p class="lede">How the pieces fit: your photos and tracks go through a Python pipeline on your
         own computer, into Cloudflare storage behind a login, and out to a MapLibre map in the browser.
         No servers to run, no build step, and the free tiers cover one person.</p>
+      <p class="lede">This sheet shows the full private setup on Cloudflare, with editing on. A read-only
+        map can live on any static host instead; the README covers both.</p>
     </div>
     <div class="titleblock" role="table" aria-label="Sheet details">
       <div class="k">Sheet</div><div>Technical cut sheet</div>
@@ -185,7 +187,7 @@ footer { border-top: 3px double var(--ink); padding-top: 14px; font-size: 12.5px
         <div class="node"><b>Trips</b><p>Home / away per day, trips, areas, drives; then names and summaries.</p>
           <div class="tagrow"><span class="tag">build_trips.py</span><span class="tag">name_trips.py</span><span class="tag">shapely</span></div></div>
         <div class="node"><b>Publish</b><p>Upload to R2, deploy the site, then check the login gate still holds.</p>
-          <div class="tagrow"><span class="tag">upload_r2.py</span><span class="tag">wrangler</span></div></div>
+          <div class="tagrow"><span class="tag">upload.py</span><span class="tag">wrangler</span></div></div>
       </div>
 
       <div class="lane cloud">

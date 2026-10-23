@@ -11,7 +11,7 @@
 #
 # Prereqs you install by hand: uv (winget install astral-sh.uv), Node.js LTS,
 # QGIS (OSGeo4W per-user is fine). Credentials live next to this script
-# (.r2.env, .garmin.env, .garmin\) - keep that folder backed up so they survive a reinstall.
+# (storage.env, site.env, .garmin.env, .garmin\) - keep that folder backed up so they survive a reinstall.
 
 $ErrorActionPreference = 'Stop'
 $PipeDir = $PSScriptRoot
@@ -30,14 +30,11 @@ try {
     & $Python -c "import build_pmtiles as b; print('ogr2ogr:', b.OGR)"
     & $Python -c "import auto_import as a, os; print('Camera Roll:', a.DEFAULT_DIR, '(exists)' if os.path.isdir(a.DEFAULT_DIR) else '(MISSING)')"
 } finally { Pop-Location }
-foreach ($f in '.r2.env', '.garmin.env', '.garmin\garmin_tokens.json') {
+foreach ($f in 'site.env', 'storage.env') {
     $ok = Test-Path (Join-Path $PipeDir $f)
     Write-Host ("{0,-28} {1}" -f $f, $(if ($ok) { 'ok' } else { 'MISSING' }))
 }
-Push-Location (Join-Path $PipeDir '..\web')
-try { npx --yes wrangler whoami | Select-String -Pattern 'logged in|not authenticated' }
-finally { Pop-Location }
-Write-Host "If wrangler is not logged in:  npx wrangler login"
+Write-Host "Cloudflare hosting only: check the login with  npx wrangler whoami  (in web\)"
 Write-Host "If the Garmin token is missing/expired:  & '$Python' garmin_sync.py login"
 
 Write-Host "`n== Scheduled task" -ForegroundColor Cyan

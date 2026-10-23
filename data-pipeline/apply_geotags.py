@@ -157,8 +157,8 @@ def main():
 
     # publish: rebuild the photo tile + the untagged catalog, upload, deploy
     run([PY, "build_pmtiles.py", "photos"])
-    run([PY, "upload_r2.py", "tiles"])
-    run([PY, "upload_r2.py", "data"])        # refresh untagged.geojson on R2
+    run([PY, "upload.py", "tiles"])
+    run([PY, "upload.py", "data"])           # refresh the published untagged.geojson
     if args.no_deploy:
         log("skipping deploy (--no-deploy)")
     else:

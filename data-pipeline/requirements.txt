@@ -1,9 +1,12 @@
 # Adventure Map data pipeline — installed into the venv by setup.ps1.
-# Nightly job (auto_import.py): photos, Garmin, R2 upload
+# Nightly job (auto_import.py): photos, activities, upload
 Pillow
 pillow-heif
 piexif
+fitdecode
+# S3-compatible storage (upload.py with STORAGE=s3)
 boto3
+# optional: Garmin Connect sync (garmin_sync.py)
 garminconnect
 # map-matching / snapping scripts (snap_tracks.py, snap_regions.py, google_*.py)
 shapely

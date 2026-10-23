@@ -101,18 +101,16 @@ def main():
         print("done (no upload)." if args.no_upload else "nothing to upload.")
         return
 
-    # overwrite the corrected derivatives on R2
-    from upload_r2 import load_env, client
-    import os
+    # overwrite the published copies of the corrected derivatives
+    from upload import load_env, store
     load_env()
-    s3 = client()
-    bucket = os.environ.get("R2_BUCKET", "photos")
-    print(f"uploading {len(fixed_files):,} corrected derivatives to r2://{bucket} ...", flush=True)
+    st = store()
+    print(f"uploading {len(fixed_files):,} corrected derivatives to {st.label} ...", flush=True)
 
     def put(path):
         p = Path(path)
         key = f"photos/{p.parent.name}/{p.name}"
-        s3.upload_file(str(p), bucket, key, ExtraArgs={"ContentType": "image/webp"})
+        st.upload(p, key, "image/webp")
         return key
 
     done = 0

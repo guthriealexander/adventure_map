@@ -1,5 +1,6 @@
 # credentials and personal settings - never commit
 data-pipeline/.r2.env
+data-pipeline/storage.env
 data-pipeline/.garmin.env
 data-pipeline/.anthropic.env
 data-pipeline/.garmin/
@@ -7,6 +8,8 @@ data-pipeline/site.env
 
 # everything generated from your own data
 data-pipeline/out/
+data-pipeline/activities/
+web/media/
 data-pipeline/derivatives/
 data-pipeline/logs/
 data-pipeline/*.log

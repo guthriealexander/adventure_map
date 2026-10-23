@@ -22,6 +22,11 @@ html, body { margin: 0; height: 100%; font-family: var(--f-body); color: var(--f
   font-family: var(--f-display); font-weight: 800; letter-spacing: .04em;
   text-transform: uppercase; color: var(--fg); }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+/* read-only sites (site.js editing: false): no controls that write to the /api backend */
+body.read-only #add-poi-btn, body.read-only #add-poi-bar, body.read-only #hiked-btn,
+body.read-only #hiked-bar, body.read-only #trip-rename, body.read-only .hide-photo-btn,
+body.read-only #film-accept-matches, body.read-only #film-sel, body.read-only #film-place,
+body.read-only #film-skip, body.read-only #film-clear { display: none !important; }
 /* form controls in the app's colours, not the browser's blue: trail red ticks and
    slider fill, paper dropdowns with a hairline edge */
 input[type=checkbox], input[type=radio], input[type=range], progress { accent-color: var(--accent); }

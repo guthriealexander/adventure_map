@@ -1,6 +1,8 @@
 /* Adventure Map — main app. Driven by window.MAP_CONFIG (config.js). */
 (() => {
   const CFG = window.MAP_CONFIG;
+  // read-only (site.js editing: false): style.css hides every control that writes
+  document.body.classList.toggle('read-only', !CFG.editing);
 
   if (window.pmtiles) {
     const protocol = new pmtiles.Protocol();
@@ -1200,7 +1202,7 @@
     map.setProjection({ type: savedProjection() });
     setupBasemap();
     setupOverlays();
-    try { hiddenPhotoIds = (await (await fetch('/api/hidden')).json()).ids || []; } catch {}
+    if (CFG.editing) { try { hiddenPhotoIds = (await (await fetch('/api/hidden')).json()).ids || []; } catch {} }
     // top-level rows first, then the sectioned ones (sections sit at the bottom)
     CFG.layers.filter((L) => !L.groupOf && !L.section).forEach(addPanelRow);
     CFG.layers.filter((L) => !L.groupOf && L.section).forEach(addPanelRow);

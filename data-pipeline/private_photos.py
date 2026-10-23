@@ -3,8 +3,8 @@ clothes). Listed by id in private_photos.txt, one per line, '#' comments allowed
 
 They stay in out/photos.geojson on purpose - the Camera Roll scan dedupes against
 that manifest, so dropping them there would just re-import them. Instead every
-publish step filters them out: build_pmtiles.py (map tiles), upload_r2.py (derivative
-images + the catalog copy on R2), and `upload_r2.py purge-private` deletes copies
+publish step filters them out: build_pmtiles.py (map tiles), upload.py (derivative
+images + the published catalog copy), and `upload.py purge-private` deletes copies
 already uploaded. tag_photos.py appends photos the model flags as sensitive.
 """
 from __future__ import annotations

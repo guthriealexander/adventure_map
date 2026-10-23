@@ -1,5 +1,7 @@
-/* POI add/edit/delete UI. Talks to /api/pois (D1-backed, behind Access). */
+/* POI add/edit/delete UI. Talks to /api/pois (D1-backed, behind Access); off when
+   the site is read-only (site.js editing: false). */
 window.initPOIeditor = (map) => {
+  if (!window.MAP_CONFIG.editing) return;
   const TYPES = ['Camp', 'Car Camp', 'Backpacking Camp', 'Hut', 'Cabin', 'Hotel',
     'Peak', 'Trailhead', 'PCT', 'Water', 'Viewpoint', 'Other'];
 

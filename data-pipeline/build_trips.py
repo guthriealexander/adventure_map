@@ -26,6 +26,23 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "out"
+
+
+def _site_setting(key, default=""):
+    """A value from site.env (see site.env.example); a real env var wins."""
+    import os
+    if key in os.environ:
+        return os.environ[key]
+    f = HERE / "site.env"
+    for line in (f.read_text(encoding="utf-8").splitlines() if f.exists() else []):
+        k, _, v = line.strip().partition("=")
+        if k.strip() == key and not line.strip().startswith("#"):
+            return v.strip()
+    return default
+
+
+# 1 = leave trips with no photos out of the Trips panel (only tracks or location history)
+NEED_PHOTOS = _site_setting("AM_TRIPS_NEED_PHOTOS", "0") == "1"
 AWAY_KM = 60          # farther than this from home = away
 BRIDGE_DAYS = 2       # no-evidence days that don't break a trip
 STRAY_KM = 800        # a track this far from the rest of its day's evidence gets its own trip
@@ -56,6 +73,8 @@ def d(s):
 
 
 def jsonl(name):
+    if not (OUT / name).exists():                  # optional sources (no activities yet)
+        return
     with open(OUT / name, encoding="utf-8") as f:
         for line in f:
             if line.strip():
@@ -63,6 +82,8 @@ def jsonl(name):
 
 
 def geojson(name):
+    if not (OUT / name).exists():                  # e.g. no Google history
+        return []
     return json.loads((OUT / name).read_text(encoding="utf-8"))["features"]
 
 
@@ -91,12 +112,14 @@ def gather():
             c = g["coordinates"] if g["type"] == "Point" else g["coordinates"][0]
             ev[d(f["properties"]["start_time"])].append((c[1], c[0], "google"))
     tracks = defaultdict(list)
-    for i, f in enumerate(jsonl("garmin_tracks.geojsonl")):
+    for i, f in enumerate(jsonl("activities.geojsonl")):   # import_activities / garmin_sync
         p, cs = f["properties"], f["geometry"]["coordinates"]
+        if not p.get("start"):
+            continue                               # no timestamps: can't place it in a trip
         day = d(p["start"])
         for c in cs[:: max(1, len(cs) // 20)]:
-            ev[day].append((c[1], c[0], "garmin"))
-        tracks[day].append({"src": "garmin", "id": p["activityId"], "name": p["name"], "type": p["type"],
+            ev[day].append((c[1], c[0], "activity"))
+        tracks[day].append({"src": "activity", "id": p["activityId"], "name": p["name"], "type": p["type"],
                             "km": p.get("distance_km") or round(line_km(cs), 2),
                             "lat": cs[0][1], "lon": cs[0][0], "bb": extent(cs)})
     # legacy Garmin points (timestamped) -> evidence, and a lookup to date the hikes
@@ -390,8 +413,8 @@ def trip_areas(trips, private=()):
         if ("hike", str(i)) in want:
             g = f["geometry"]
             lines[("hike", str(i))] = g["coordinates"] if g["type"] == "MultiLineString" else [g["coordinates"]]
-    for f in jsonl("garmin_tracks.geojsonl"):
-        k = ("garmin", str(f["properties"]["activityId"]))
+    for f in jsonl("activities.geojsonl"):
+        k = ("activity", str(f["properties"]["activityId"]))
         if k in want:
             lines[k] = [f["geometry"]["coordinates"]]
     where = {f["properties"]["id"]: f["geometry"]["coordinates"][:2] for f in geojson("photos.geojson")}
@@ -453,8 +476,8 @@ def trip_focus(trips, private=()):
         if ("hike", str(i)) in want:
             g = f["geometry"]
             lines[("hike", str(i))] = g["coordinates"] if g["type"] == "MultiLineString" else [g["coordinates"]]
-    for f in jsonl("garmin_tracks.geojsonl"):
-        k = ("garmin", str(f["properties"]["activityId"]))
+    for f in jsonl("activities.geojsonl"):
+        k = ("activity", str(f["properties"]["activityId"]))
         if k in want:
             lines[k] = [f["geometry"]["coordinates"]]
     out = {}
@@ -525,8 +548,8 @@ def write_public(trips, names=None, heroes=None):
         tracks = [x | ({"name": track_names[f"{x['src']}:{x['id']}"]["name"]}
                        if f"{x['src']}:{x['id']}" in track_names else {}) for x in t["tracks"]]
         public_ids = [i for i in t["photo_ids"] if i not in private]
-        if not public_ids:
-            continue                                    # no photos to show: not listed (owner, 2026-10-21)
+        if NEED_PHOTOS and not public_ids:
+            continue                                    # no photos to show: not listed
         hero = heroes.get(t["id"])
         if not hero or hero in private:
             hero = public_ids[0] if public_ids else None
@@ -611,7 +634,7 @@ def write_trip_photos(trips, private):
     app when the trip is picked. The photo tiles are thinned below z9, so filtering
     them by date left a big trip with almost no dots."""
     from private_photos import null_island
-    feats = {f["properties"]["id"]: f for f in json.loads((OUT / "photos.geojson").read_text(encoding="utf-8"))["features"]}
+    feats = {f["properties"]["id"]: f for f in geojson("photos.geojson")}
     keep = ("id", "timestamp", "is_360", "filename", "pano_type")
     tags_file = OUT / "photo_tags.json"
     junk = {i for i, t in json.loads(tags_file.read_text(encoding="utf-8")).items()

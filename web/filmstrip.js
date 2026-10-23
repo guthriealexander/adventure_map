@@ -89,6 +89,8 @@
   }
 
   async function loadUntagged() {
+    // geotagging writes to /api: a read-only site shows only located photos
+    if (!window.MAP_CONFIG.editing) { untagged = []; return; }
     const json = (url) => fetch(url).then((r) => r.json());
     try {
       // fetched in parallel — these used to wait on each other in sequence

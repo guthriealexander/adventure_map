@@ -110,6 +110,7 @@
   async function loadRenames() {
     try {
       renames = CFG.isLocal ? JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}')
+        : !CFG.editing ? {}                             // read-only: the names in trips.json
         : ((await (await fetch('/api/trip-names', { cache: 'no-store' })).json()).names || {});
     } catch (e) { renames = {}; console.warn('trip names', e); }
     const byStart = {};
@@ -173,7 +174,7 @@
 
   // ----- map -----------------------------------------------------------------
   const HL = [
-    { id: 'trip-hl-garmin', src: 'garmin_tracks', layer: 'garmin_tracks', key: 'activityId', pick: (t) => t.tracks.filter((x) => x.src === 'garmin').map((x) => String(x.id)) },
+    { id: 'trip-hl-activity', src: 'activities', layer: 'activities', key: 'activityId', pick: (t) => t.tracks.filter((x) => x.src === 'activity').map((x) => String(x.id)) },
     { id: 'trip-hl-hikes', src: 'hikes', layer: 'hikes_snapped', key: 'src_idx', pick: (t) => t.tracks.filter((x) => x.src === 'hike' && x.type !== 'drive').map((x) => x.id) },
   ];
   // Roads driven, multi-day trips only (a day hike's drive to the trailhead is noise):
@@ -242,7 +243,7 @@
     const map = window._am.map;
     for (const h of HL) {
       if (!map.getLayer(h.id + '-focus')) continue;
-      const mine = x && ((h.src === 'garmin_tracks' && x.src === 'garmin') || (h.src === 'hikes' && x.src === 'hike'));
+      const mine = x && ((h.src === 'activities' && x.src === 'activity') || (h.src === 'hikes' && x.src === 'hike'));
       map.setFilter(h.id + '-focus', mine ? ['==', ['get', h.key], h.key === 'activityId' ? String(x.id) : x.id] : noTrack(h));
     }
   }

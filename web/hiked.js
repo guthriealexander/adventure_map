@@ -11,7 +11,7 @@
   window.initHiked = (m) => {
     map = m;
     const btn = $('hiked-btn');
-    if (!btn) return;
+    if (!btn || !window.MAP_CONFIG.editing) return;     // stored by /api: editing only
     ensureSelectLayer();
     btn.onclick = () => (selecting ? exit() : enter());
     $('hiked-add').onclick = commit;

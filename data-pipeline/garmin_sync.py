@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Pull GPS tracks from Garmin Connect -> GeoJSON LineStrings for the map.
 
+Optional: with another watch, export FIT/GPX/TCX files into the activities folder
+instead and import_activities.py picks them up. Both write out/activities.geojsonl.
+
 Only activities that actually have a GPS track (hike, walk, run, ride, etc.) are
 imported — anything without coordinates (treadmill, strength, etc.) is skipped.
 Each activity becomes ONE LineString feature with name/type/time/distance props.
@@ -33,7 +36,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 TOKENSTORE = HERE / ".garmin"
-OUT = HERE / "out" / "garmin_tracks.geojsonl"
+OUT = HERE / "out" / "activities.geojsonl"
 STATE = HERE / "garmin_state.json"
 MAX_POINTS = 2000   # downsample very long tracks so the tile stays light
 
@@ -157,6 +160,7 @@ def cmd_sync(args):
                     "geometry": {"type": "LineString", "coordinates": coords},
                     "properties": {
                         "activityId": aid,
+                        "source": "garmin",
                         "name": act.get("activityName") or "",
                         "type": (act.get("activityType") or {}).get("typeKey") or "",
                         "start": act.get("startTimeLocal") or act.get("startTimeGMT") or "",

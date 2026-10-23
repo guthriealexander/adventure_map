@@ -635,7 +635,7 @@ def cmd_untagged(args):
     print(f"untagged: seen={seen:,} added={added:,} have_gps={hasgps:,} dup={dup:,} "
           f"errors={errors:,} | untagged manifest now {len(uc['features']):,} -> {args.untagged}")
     print("next:  python photos_ingest.py derivs --manifest", args.untagged,
-          "&& python upload_r2.py photos && python upload_r2.py data")
+          "&& python upload.py photos && python upload.py data")
 
 
 # ---------------------------------------------------------------------------

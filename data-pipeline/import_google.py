@@ -51,7 +51,7 @@ def main():
     log(f"Google Timeline import <- {src}")
     run([PY, "convert_google_timeline.py", str(src), "--outdir", "out", "--raw-signals"])
     run([PY, "build_pmtiles.py", "google_paths"])
-    run([PY, "upload_r2.py", "tiles"])
+    run([PY, "upload.py", "tiles"])
     if args.no_deploy:
         log("skipping deploy (--no-deploy)")
     else:

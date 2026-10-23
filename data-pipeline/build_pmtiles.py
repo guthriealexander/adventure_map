@@ -52,8 +52,9 @@ LAYERS = {
     "hikes_snapped": ("hikes_snapped.geojsonl", "hikes_snapped", 13),
     "roads_travelled": ("roads_travelled.geojsonl", "roads_travelled", 13),
     "garmin": ("garmin.geojson", "garmin", 12),
-    # GPS activity tracks pulled from Garmin Connect (LineString per activity)
-    "garmin_tracks": ("garmin_tracks.geojsonl", "garmin_tracks", 13),
+    # GPS activities, one LineString each: import_activities.py (FIT/GPX/TCX from any
+    # watch or app) and garmin_sync.py
+    "activities": ("activities.geojsonl", "activities", 13),
     "google_paths": ("google_path_points.geojson", "google_paths", 12),
     "google_old": ("google_old_full.geojsonl", "google_old", 11),
     # photos: prefer the pre-scan snapshot if the live manifest is being written

@@ -10,7 +10,7 @@ next to each un-referenced photo; you still confirm or reject it there.
 Two real point time-series are used for exact nearest-point matching:
   - Garmin legacy points        (out/garmin.geojson)            -- true UTC ("...Z")
   - Google Timeline path points (out/google_path_points.geojson) -- true UTC (explicit offset)
-Garmin's newer activity tracks (out/garmin_tracks.geojsonl) only carry a start
+GPS activities (out/activities.geojsonl: any watch, or Garmin) only carry a start
 time + duration (no per-vertex time), so they're matched by interpolating a
 vertex proportionally across the activity's time window -- flagged as
 method:"interp" in the output, since it's the track's time *resolution*, not
@@ -173,7 +173,7 @@ def main():
     ap.add_argument("--untagged", type=Path, default=OUT / "untagged.geojson")
     ap.add_argument("--garmin-points", type=Path, default=OUT / "garmin.geojson")
     ap.add_argument("--google-points", type=Path, default=OUT / "google_path_points.geojson")
-    ap.add_argument("--garmin-tracks", type=Path, default=OUT / "garmin_tracks.geojsonl")
+    ap.add_argument("--garmin-tracks", "--activities", type=Path, default=OUT / "activities.geojsonl")
     ap.add_argument("--out", type=Path, default=OUT / "geotag_suggestions.geojson")
     ap.add_argument("--max-delta-min", type=float, default=20.0,
                      help="only suggest a match within this many minutes (default 20)")
@@ -222,7 +222,7 @@ def main():
     for src, n in sorted(by_source.items(), key=lambda x: -x[1]):
         print(f"  {src}: {n:,}")
     print(f"-> {args.out}")
-    print("next:  python upload_r2.py data    # pushes geotag_suggestions.geojson")
+    print("next:  python upload.py data    # publishes geotag_suggestions.geojson")
 
 
 if __name__ == "__main__":

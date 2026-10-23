@@ -1,4 +1,5 @@
-# Cloudflare Pages project for the Adventure Map web app.
+# Cloudflare Pages + R2 + D1 hosting (optional: see "Hosting" in the README).
+# With web/site.js mediaBase '/media'.
 # Static assets live in this folder; functions/ provides the same-origin /media/*
 # R2 proxy and the /api/* D1 endpoints. A Cloudflare Access application on the
 # Pages domain (and *.<domain> for preview deployments) protects everything.
@@ -13,7 +14,7 @@ pages_build_output_dir = "."
 # R2 bucket exposed to functions as env.MEDIA (holds photos/, data/, tiles/).
 [[r2_buckets]]
 binding = "MEDIA"
-bucket_name = "photos"                 # your R2 bucket (.r2.env R2_BUCKET)
+bucket_name = "photos"                 # your R2 bucket (storage.env S3_BUCKET)
 
 # D1 for your edits (POIs, geotags, hidden photos, trip names) - env.DB.
 # Create it with `npx wrangler d1 create adventure-map` and paste the id here.

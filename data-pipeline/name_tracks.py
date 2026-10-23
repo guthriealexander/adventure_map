@@ -7,7 +7,7 @@ record which named OSM trails it follows (OSM US trails tileset, z14), where it 
 waterfalls and viewpoints near its turnaround point or anywhere on the line, from the
 OpenMapTiles basemap and the trails tileset's POIs). Claude Haiku 5.5 turns those facts
 into a short guidebook-style name; it may only use names from the facts. Tiles are
-cached in out/_tracks/tiles/, names in out/track_names.json keyed "garmin:<id>" /
+cached in out/_tracks/tiles/, names in out/track_names.json keyed "activity:<id>" /
 "hike:<index>" with a hash of the facts, so reruns only ask about new/changed tracks.
 
 Usage:
@@ -270,12 +270,14 @@ def load_tracks():
             if x["type"] != "drive":
                 want[f"{x['src']}:{x['id']}"] = x
     out = []
-    for line in open(OUT / "garmin_tracks.geojsonl", encoding="utf-8"):
+    acts = OUT / "activities.geojsonl"
+    for line in (open(acts, encoding="utf-8") if acts.exists() else []):
         f = json.loads(line)
-        key = f"garmin:{f['properties']['activityId']}"
+        key = f"activity:{f['properties']['activityId']}"
         if key in want:
             out.append((key, f["properties"]["type"], f["geometry"]["coordinates"], want[key]["km"], f["properties"]["name"]))
-    for i, line in enumerate(open(OUT / "hikes.geojsonl", encoding="utf-8")):
+    hikes = OUT / "hikes.geojsonl"
+    for i, line in enumerate(open(hikes, encoding="utf-8") if hikes.exists() else []):
         key = f"hike:{i}"
         if key in want:
             g = json.loads(line)["geometry"]

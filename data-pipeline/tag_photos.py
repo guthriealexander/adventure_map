@@ -9,7 +9,7 @@ quality 1-5, landmark (only when clearly identifiable) and keep (false = junk su
 as screenshots, receipts, pocket shots).
 
 Credentials: ANTHROPIC_API_KEY from the environment or a local `.anthropic.env`
-(gitignored), same pattern as .r2.env.
+(gitignored), same pattern as storage.env.
 
 Usage:
     python tag_photos.py new                   # nightly: tag photos added since last run (direct)
@@ -166,7 +166,7 @@ def image_bytes(p, size=None):
 
 def build_params(p, size=None, url=None):
     """Messages API params for one photo (trial and batch). With `url` the image is
-    fetched from there (a short-lived signed R2 link) instead of sent inline, which
+    fetched from there (a short-lived signed bucket link) instead of sent inline, which
     keeps a batch request ~1 KB instead of ~250 KB."""
     if url:
         source = {"type": "url", "url": url}
@@ -338,10 +338,10 @@ def cmd_submit(args):
     from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
     from anthropic.types.messages.batch_create_params import Request
     from private_photos import load_private_ids
-    import upload_r2
+    import upload
 
-    upload_r2.load_env()
-    s3, bucket = upload_r2.client(), os.environ.get("R2_BUCKET", "photos")
+    upload.load_env()
+    st = upload.store()
     client = anthropic.Anthropic()
     tags = load_json(TAGS_FILE, {})
     batches = load_json(BATCHES_FILE, [])
@@ -357,8 +357,9 @@ def cmd_submit(args):
         chunk = todo[start:start + BATCH_SIZE]
         reqs = []
         for p in chunk:
-            url = s3.generate_presigned_url("get_object", ExpiresIn=LINK_TTL,
-                                            Params={"Bucket": bucket, "Key": f"photos/{p['id']}/web.webp"})
+            # a signed link to the bucket copy; folder storage has none, so the
+            # image goes inline instead (bigger requests, same result)
+            url = st.presign(f"photos/{p['id']}/web.webp", LINK_TTL)
             reqs.append(Request(custom_id=p["id"],
                                 params=MessageCreateParamsNonStreaming(**build_params(p, url=url))))
         b = client.messages.batches.create(requests=reqs)

@@ -1,24 +1,28 @@
 // Adventure Map — runtime config.
-// DATA_MODE 'local' = dev (GeoJSON + photos from the data-pipeline folder).
-// DATA_MODE 'r2'    = prod (served same-origin from R2 via /media/* Pages Functions,
-//                     all behind Cloudflare Access — nothing is public).
+// On localhost the app reads straight from the data-pipeline folder. Deployed, it
+// reads from window.SITE.mediaBase (site.js): files published with the site, a
+// bucket, or Cloudflare's /media Functions. window.SITE.editing turns on the
+// features that write to the /api backend.
 
 window.MAP_CONFIG = (() => {
-  // Auto: local dev when served from localhost, R2 when deployed.
   const host = location.hostname;
   const isLocal = host === 'localhost' || host === '127.0.0.1';
-  const DATA_MODE = isLocal ? 'local' : 'r2';
+  const DATA_MODE = isLocal ? 'local' : 'site';
+  const SITE = window.SITE || {};
+  // absolute, so pmtiles:// URLs and fetches resolve the same everywhere
+  const BASE = new URL(String(SITE.mediaBase ?? 'media').replace(/\/*$/, '/'), location.href).href.replace(/\/$/, '');
+  const editing = !isLocal && !!SITE.editing;      // local dev has no /api
 
-  // Where data + photos come from in each mode.
-  const DATA = isLocal ? '../data-pipeline/out' : '/media/data';
-  const PHOTOS = isLocal ? '../data-pipeline/derivatives' : '/media/photos';
-  const TILES = isLocal ? '../data-pipeline/out' : '/media/tiles';
+  // Where data + photos come from.
+  const DATA = isLocal ? '../data-pipeline/out' : `${BASE}/data`;
+  const PHOTOS = isLocal ? '../data-pipeline/derivatives' : `${BASE}/photos`;
+  const TILES = isLocal ? '../data-pipeline/out' : `${BASE}/tiles`;
 
   // Photo derivative URL. kind = thumb | web | pano.
   const photoUrl = (id, kind) => `${PHOTOS}/${id}/${kind}.webp`;
 
   // Catalog of un-geotagged photos (for the in-app geotagging gallery). The app
-  // reads the slim rows file (id, timestamp, is_360 — written by upload_r2.py);
+  // reads the slim rows file (id, timestamp, is_360 — written by upload.py);
   // the full GeoJSON is only a fallback if the slim file isn't there.
   const untaggedUrl = `${DATA}/untagged.min.json`;
   const tripsUrl = `${DATA}/trips.json`;            // build_trips.py -> Trips panel
@@ -35,7 +39,7 @@ window.MAP_CONFIG = (() => {
 
   // kind: points | lines | photos | pois.  format: pmtiles | api.
   const tile = (name) => ({ format: 'pmtiles', tile: name, url: `${TILES}/${name}.pmtiles`, sourceLayer: name });
-  // Tile archives on R2 are versioned (tiles/<name>.<hash>.pmtiles, upload_r2.py) and
+  // Tile archives are versioned (tiles/<name>.<hash>.pmtiles, upload.py) and
   // data/tiles.json names the current ones. Read once per page load, so an open page
   // keeps the version it started with even after the nightly upload replaces it.
   // Local dev (and a missing manifest) uses the plain <name>.pmtiles.
@@ -69,7 +73,7 @@ window.MAP_CONFIG = (() => {
       defaultOn: false, ...tile('google_paths') },
 
     // Legacy Garmin track points (from the old GeoPackage export).
-    { id: 'garmin', section: 'raw', label: 'Garmin points (legacy)', kind: 'points', color: '#ff6d00',
+    { id: 'garmin', section: 'raw', label: 'GPS points (legacy)', kind: 'points', color: '#ff6d00',
       opacity: 1, defaultOn: false, minzoom: 8, ...tile('garmin') },
 
     // Every road travelled, map-matched and aggregated into one line per network
@@ -88,12 +92,13 @@ window.MAP_CONFIG = (() => {
 
     // "Hikes" is one panel entry over three sources (groupOf: 'hikes'), each kept
     // separate so it can update on its own:
-    //   * GPS activity tracks from Garmin Connect (rebuilt nightly by auto_import)
+    //   * GPS activities: FIT / GPX / TCX files from any watch or app
+    //     (import_activities.py) and, optionally, Garmin Connect (garmin_sync.py)
     //   * the hikes layer, map-matched onto the trail network (snap_regions.py),
     //     foot stretches only (its driving is folded into Roads travelled above)
     //   * trail segments marked as hiked in the app (🥾 tool, stored in D1)
-    { id: 'garmin_tracks', groupOf: 'hikes', label: 'Garmin tracks', kind: 'lines', color: '#bb00ff',
-      defaultOn: true, ...tile('garmin_tracks') },
+    { id: 'activities', groupOf: 'hikes', label: 'Activities', kind: 'lines', color: '#bb00ff',
+      defaultOn: true, ...tile('activities') },
 
     { id: 'hikes', label: 'Hikes', kind: 'lines', color: '#bb00ff',
       defaultOn: true, minzoom: 8, ...tile('hikes_snapped'),
@@ -103,9 +108,10 @@ window.MAP_CONFIG = (() => {
     { id: 'hikes_raw', section: 'raw', label: 'Original tracks (unsnapped)', kind: 'lines', color: '#b0592a',
       defaultOn: false, width: 1.5, dash: 'dot', ...tile('hikes') },
 
-    // Trail segments I've marked as hiked (selected from the OSM trails overlay).
-    { id: 'hiked', groupOf: 'hikes', label: 'Hiked trails', kind: 'lines', color: '#bb00ff',
-      defaultOn: true, minzoom: 8, format: 'api', url: '/api/hiked' },
+    // Trail segments marked as hiked in the app (selected from the OSM trails
+    // overlay). Stored by the /api backend, so only with editing on.
+    ...(editing ? [{ id: 'hiked', groupOf: 'hikes', label: 'Hiked trails', kind: 'lines', color: '#bb00ff',
+      defaultOn: true, minzoom: 8, format: 'api', url: '/api/hiked' }] : []),
 
     // Photos as vector tiles (individual points, no clustering) for performance.
     { id: 'photos', label: 'Photos', kind: 'photos', color: '#9b4683',
@@ -114,7 +120,7 @@ window.MAP_CONFIG = (() => {
     // Editable POIs from the D1-backed API. Locally (no API) it reads the nightly
     // off-cloud backup written by export_pois.py, so POIs can be checked in dev.
     { id: 'pois', label: 'My POIs', kind: 'pois', color: '#2e86de',
-      defaultOn: true, minzoom: 8, format: 'api', url: isLocal ? `${DATA}/pois.geojson` : '/api/pois' },
+      defaultOn: true, minzoom: 8, format: 'api', url: editing ? '/api/pois' : `${DATA}/pois.geojson` },
   ];
 
   // Selectable basemap styles (the "Style" switcher in the panel). All vector,
@@ -160,5 +166,5 @@ window.MAP_CONFIG = (() => {
     },
   ];
 
-  return { DATA_MODE, isLocal, photoUrl, tileUrl, tripsUrl, tripPhotosUrl, tripDriveUrl, geotagAiUrl, untaggedUrl, untaggedFullUrl, geotagSuggestionsUrl, layers, sections, basemap, overlays, styles, defaultStyleId };
+  return { DATA_MODE, isLocal, editing, photoUrl, tileUrl, tripsUrl, tripPhotosUrl, tripDriveUrl, geotagAiUrl, untaggedUrl, untaggedFullUrl, geotagSuggestionsUrl, layers, sections, basemap, overlays, styles, defaultStyleId };
 })();
