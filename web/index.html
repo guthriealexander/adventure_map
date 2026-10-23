@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Adventure Map</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.1/dist/maplibre-gl.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/core@5/index.css" rel="stylesheet" />
+<link href="style.css?v=17c5644537" rel="stylesheet" />
+
+<script src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script>
+<!-- MapLibre 6 ships ES modules only, and the app's scripts are classic ones that
+     expect a global. This hands the module to them; module scripts and the deferred
+     scripts at the end of <body> run in document order, so the global is always set
+     before they execute. v6 is needed because MapLibre 5 skips custom layers (screen
+     passes) whenever 3D terrain is on. -->
+<script type="module">
+  import * as maplibregl from 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.1/dist/maplibre-gl.mjs';
+  window.maplibregl = maplibregl;
+</script>
+
+<!-- photo-sphere-viewer (ESM) exposed as window.openSphere -->
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.166.1/build/three.module.js",
+  "@photo-sphere-viewer/core": "https://cdn.jsdelivr.net/npm/@photo-sphere-viewer/core@5/index.module.js"
+}}
+</script>
+<script type="module">
+  import { Viewer } from '@photo-sphere-viewer/core';
+  let viewer = null;
+  window.openSphere = (url, caption) => {
+    const modal = document.getElementById('pano');
+    const host = document.getElementById('pano-host');
+    document.getElementById('pano-caption').textContent = caption || '';
+    modal.style.display = 'block';
+    if (viewer) viewer.destroy();
+    viewer = new Viewer({ container: host, panorama: url, navbar: ['zoom', 'fullscreen'] });
+  };
+  window.closeSphere = () => {
+    document.getElementById('pano').style.display = 'none';
+    if (viewer) { viewer.destroy(); viewer = null; }
+  };
+</script>
+</head>
+<body>
+<div id="map"></div>
+
+<!-- place search (geocoding) -->
+<div id="search">
+  <input id="search-input" type="search" placeholder="Search places…" autocomplete="off" aria-label="Search places" />
+  <div id="search-results"></div>
+</div>
+
+<!-- layer panel -->
+<div id="panel">
+  <button id="panel-toggle" aria-label="Layers">☰</button>
+  <div id="panel-body">
+    <h3>Layers</h3>
+    <div id="layers"></div>
+    <button id="copy-config" type="button">Copy config</button>
+    <div id="basemap">
+      <h3>Basemap</h3>
+      <label class="bm-row" for="basemap-style">Style</label>
+      <select id="basemap-style" class="bm-style"></select>
+      <label class="bm-row"><input type="checkbox" id="bm-hillshade"> Hillshade</label>
+      <div class="bm-opacity"><span>Opacity</span>
+        <input type="range" id="bm-hillshade-opacity" min="0" max="100" value="60"></div>
+      <label class="bm-row" id="bm-contours-row"><input type="checkbox" id="bm-contours"> Contour lines</label>
+      <div class="bm-opacity" id="bm-blur-row" title="How far away the 3D depth-of-field blur starts when the map is tilted (all the way right = no blur)"><span>Blur distance</span>
+        <input type="range" id="bm-blur" min="0" max="100" value="54"></div>
+      <label class="bm-row"><input type="checkbox" id="bm-imagery"> Satellite imagery</label>
+    </div>
+    <div id="overlays-section">
+      <h3>Overlays</h3>
+      <div id="overlays"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 360 sphere modal -->
+<div id="pano">
+  <div id="pano-bar">
+    <span id="pano-caption"></span>
+    <button onclick="window.closeSphere()">✕</button>
+  </div>
+  <div id="pano-host"></div>
+</div>
+
+<!-- wide-pano / photo lightbox -->
+<div id="lightbox" onclick="this.style.display='none'">
+  <img id="lightbox-img" alt="" />
+</div>
+
+<!-- trips panel (trips.js) -->
+<button id="trips-btn" title="Trips"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.6 8.4-2.1 5.1-5.1 2.1 2.1-5.1 5.1-2.1Z"/></g></svg></button>
+<div id="trips">
+  <div id="trips-head"><b>Trips</b><span id="trips-count"></span>
+    <button id="trips-close" type="button" aria-label="Close trips">✕</button></div>
+  <input id="trips-q" type="search" placeholder="Place, year, name" aria-label="Filter trips" autocomplete="off">
+  <div id="trips-list"></div>
+  <div id="trips-detail"></div>
+</div>
+
+<!-- mark trails as hiked -->
+<button id="hiked-btn" title="Mark trails as hiked"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h4v7l5 2.2c2.4 1 4 2.3 4 4.8V19H5v-4.5L7 3Z"/><path d="M5 16h15M8.6 6.5H11M8.2 9.5H11"/></g></svg></button>
+<div id="hiked-bar">
+  <span id="hiked-count">Tap trail segments to select</span>
+  <button id="hiked-add" disabled>Add to hiked trails</button>
+  <button id="hiked-done">Done</button>
+</div>
+
+<!-- leader-line overlay (filmstrip hover -> map) -->
+<svg id="film-overlay"></svg>
+
+<!-- bottom filmstrip: photo timeline + geotagging -->
+<div id="filmstrip">
+  <div id="film-bar">
+    <button id="film-toggle" title="Collapse">▾</button>
+    <span id="film-size">
+      <button id="film-smaller" title="Smaller photos">−</button>
+      <button id="film-bigger" title="Larger photos">+</button>
+    </span>
+    <span id="film-info">Photos</span>
+    <button id="film-accept-matches" style="display:none">Accept GPS matches</button>
+    <span id="film-sel"></span>
+    <button id="film-place" disabled>Place on map</button>
+    <button id="film-skip" disabled>Skip</button>
+    <button id="film-clear" style="display:none">Clear</button>
+  </div>
+  <div id="film-track"></div>
+</div>
+<div id="film-banner"></div>
+<div id="app-toast"></div>
+
+<script defer src="config.js?v=13ff853ebe"></script>
+<script defer src="app.js?v=4441310cfb"></script>
+<script defer src="pois.js?v=77e82192b5"></script>
+<script defer src="hiked.js?v=e00ae82173"></script>
+<script defer src="search.js?v=42bfc6c4ac"></script>
+<script defer src="trips.js?v=d96a6f5bed"></script>
+<script defer src="filmstrip.js?v=b5c48d8e1e"></script>
+<script defer src="clips.js?v=08b8e6949a"></script>
+</body>
+</html>

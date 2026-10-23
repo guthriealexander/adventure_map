@@ -1,0 +1,8 @@
+# Cloudflare Pages static-asset headers (does not affect /api or /media Functions).
+# The page must always be revalidated: it carries the ?v=<hash> stamps on the JS/CSS
+# links (stamp_assets.py), so a fresh index.html is what makes new code load on a
+# normal reload. A stale cached copy would keep pointing at the old files.
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache

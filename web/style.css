@@ -1,0 +1,339 @@
+/* Panel palette + type: warm paper and ink instead of white and near-black, a
+   hairline rule on panels, and the display face for headings. */
+:root {
+  --paper: #f2eee4;          /* map paper — matches the style's background */
+  --bg: #fbf8f1;             /* panels, buttons, bars */
+  --fg: #25303a;             /* ink */
+  --muted: #5d6670;
+  --rule: #dcd4c4;           /* hairline borders */
+  --accent: #a82a28;         /* trail red */
+  --gold: #d99a1e;           /* selection / focus */
+  --park: #66703f;
+  --shadow: 0 1px 0 rgba(37, 48, 58, .06), 0 10px 30px -12px rgba(37, 48, 58, .28);
+  --f-display: "Big Shoulders Display", "Oswald", "Arial Narrow", sans-serif;
+  --f-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; font-family: var(--f-body); color: var(--fg); background: var(--paper); }
+/* panels and bars sit on paper: hairline rule + soft shadow, not a hard drop shadow */
+#panel-body, #hiked-bar, #add-poi-bar, #filmstrip, #search, #search-results, #film-banner,
+#hiked-btn, #add-poi-btn, #panel-toggle { border: 1px solid var(--rule); }
+#panel-body h3, #basemap h3, #overlays-section h3 {
+  font-family: var(--f-display); font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--fg); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+/* form controls in the app's colours, not the browser's blue: trail red ticks and
+   slider fill, paper dropdowns with a hairline edge */
+input[type=checkbox], input[type=radio], input[type=range], progress { accent-color: var(--accent); }
+input[type=range] { cursor: pointer; }
+select { font: inherit; color: var(--fg); background-color: var(--bg); border: 1px solid var(--rule);
+  border-radius: 6px; padding: 3px 6px; }
+select:hover { border-color: var(--muted); }
+#map { position: absolute; inset: 0; }
+
+/* layer panel */
+#panel { position: absolute; top: 10px; left: 10px; z-index: 2; }
+#panel-toggle { display: none; width: 40px; height: 40px; font-size: 18px; border: none;
+  background: var(--bg); border-radius: 8px; box-shadow: var(--shadow); cursor: pointer; }
+#panel-body { background: var(--bg); border-radius: 10px; box-shadow: var(--shadow);
+  padding: 12px 14px; min-width: 190px; }
+#panel-body h3 { margin: 0 0 8px; font-size: 13px; }
+#layers label { display: flex; align-items: center; gap: 7px; padding: 4px 0;
+  font-size: 13px; cursor: pointer; }
+#layers .count { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 11px; }
+.swatch { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+.swatch.line { border-radius: 2px; height: 4px; width: 14px; }
+
+/* live color-picker swatch (per layer / overlay) — a small round color input */
+.swatch-color { flex: none; width: 16px; height: 16px; padding: 0; border: 1px solid #ccc;
+  border-radius: 50%; background: none; cursor: pointer; -webkit-appearance: none; appearance: none; }
+.swatch-color.line { border-radius: 3px; }
+.swatch-color::-webkit-color-swatch-wrapper { padding: 0; }
+.swatch-color::-webkit-color-swatch { border: none; border-radius: 50%; }
+.swatch-color.line::-webkit-color-swatch { border-radius: 2px; }
+.swatch-color::-moz-color-swatch { border: none; border-radius: 50%; }
+#copy-config { margin: 6px 0 2px; width: 100%; padding: 4px 6px; font-size: 12px;
+  border: 1px solid #ddd; border-radius: 4px; background: #f7f7f7; cursor: pointer; }
+#copy-config:hover { background: #eee; }
+
+/* per-layer style controls drawer (⚙ weight / dash / halo / zoom) */
+.ctl-toggle { margin-left: 6px; border: none; background: none; cursor: pointer;
+  font-size: 12px; line-height: 1; padding: 0 2px; opacity: 0.6; }
+.ctl-toggle:hover { opacity: 1; }
+.layer-controls { display: none; padding: 4px 0 6px 18px; }
+.layer-controls.open { display: block; }
+.ctl-row { display: flex; align-items: center; gap: 6px; padding: 2px 0;
+  font-size: 11px; color: var(--muted); }
+.ctl-row > span { width: 62px; flex: none; }
+.ctl-row input[type=range] { flex: 1; min-width: 60px; }
+.ctl-row select { flex: 1; font-size: 11px; }
+.ctl-row .ctl-val { width: 26px; flex: none; text-align: right;
+  font-variant-numeric: tabular-nums; color: #333; }
+.layer-block { padding: 0; }
+
+/* fanned-out photos of an overlapping cluster (HTML markers) */
+.spider-thumb { width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
+  background-size: cover; background-position: center; background-color: var(--bg);
+  border: 2px solid var(--bg); box-shadow: var(--shadow); }
+.spider-thumb.is-360 { border-color: #ffd34d; }
+
+/* collapsible layer section (e.g. "Raw data") */
+.layer-section { margin-top: 6px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 4px; }
+.layer-section > summary { cursor: pointer; font-size: 12px; font-weight: 600;
+  color: var(--muted); padding: 4px 0; user-select: none; }
+.layer-section > summary:hover { color: inherit; }
+.layer-section .section-body { padding-left: 10px; }
+
+/* drive-time isochrone slider (always visible under the layer row) */
+.iso-slider { display: flex; align-items: center; gap: 7px; padding: 2px 0 6px 18px; }
+.iso-slider input[type=range] { flex: 1; min-width: 80px; }
+.iso-slider .iso-val { font-size: 11px; color: var(--muted); width: 52px; flex: none;
+  text-align: right; font-variant-numeric: tabular-nums; }
+
+/* basemap + overlay controls (hillshade / imagery / trails) */
+#basemap, #overlays-section { border-top: 1px solid #eee; margin-top: 8px; padding-top: 8px; }
+#basemap h3, #overlays-section h3 { margin: 0 0 6px; font-size: 13px; }
+.bm-row { display: flex; align-items: center; gap: 7px; padding: 4px 0;
+  font-size: 13px; cursor: pointer; }
+.bm-opacity { display: flex; align-items: center; gap: 7px;
+  padding: 2px 0 6px 18px; font-size: 11px; color: var(--muted); }
+.bm-opacity input { flex: 1; min-width: 80px; }
+.bm-style { width: 100%; margin: 0 0 4px; padding: 4px 6px; font-size: 13px;
+  border: 1px solid #ddd; border-radius: 4px; background: #fff; cursor: pointer; }
+
+/* mark-hiked tool */
+/* The floating map buttons (trips, hiked trails, + add POI) share one size and
+   right edge so their circles line up in a column, evenly spaced, and centre their
+   glyph with flex instead of text metrics ("+" sits off-centre otherwise). Trips and
+   hiked carry line icons drawn like the map's markers (icons/poi): currentColor. */
+#hiked-btn, #add-poi-btn, #trips-btn { position: absolute; right: 14px; z-index: 7;
+  width: 52px; height: 52px; padding: 0; border: none; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; line-height: 1;
+  cursor: pointer; box-shadow: var(--shadow); }
+#hiked-btn { bottom: calc(var(--film-h) + 76px); }
+#trips-btn { bottom: calc(var(--film-h) + 138px); }
+#hiked-btn, #trips-btn { background: var(--bg); color: #284C43; border: 1px solid var(--rule); }
+#hiked-btn svg, #trips-btn svg { width: 27px; height: 27px; display: block; }
+#hiked-btn.active { background: #ff6d00; color: #fff; }
+/* Sits ABOVE the filmstrip: --film-h is kept in sync by JS (collapsed or open),
+   and z-index must beat #filmstrip's 6 or the strip covers the dialog. */
+#hiked-bar { display: none; position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--film-h) + 8px); z-index: 9; background: var(--bg); padding: 8px 12px; border-radius: 10px;
+  box-shadow: var(--shadow); font-size: 13px; align-items: center; gap: 8px; white-space: nowrap; }
+#hiked-bar button { padding: 5px 10px; border: 0; border-radius: 6px; background: #eee;
+  cursor: pointer; font-size: 12px; }
+#hiked-bar #hiked-add { background: #ff6d00; color: #fff; }
+#hiked-bar #hiked-add:disabled { background: #ffc599; }
+.hk-del { background: #fde8e8; color: #c0392b; border: 0; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+
+/* bottom filmstrip (photo timeline + geotagging) */
+:root { --film-thumb: 96px; --film-h: 188px; }   /* --film-h = bar 34 + track (thumb+58); JS keeps it synced */
+#filmstrip { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--bg);
+  box-shadow: 0 -2px 12px rgba(0,0,0,.18); display: flex; flex-direction: column; }
+#film-size { display: inline-flex; gap: 3px; margin-left: 4px; }
+#film-size button { width: 22px; height: 22px; border: 0; border-radius: 5px; background: #eee;
+  cursor: pointer; font-size: 14px; line-height: 1; }
+#filmstrip.collapsed #film-track { display: none; }
+#film-bar { display: flex; align-items: center; gap: 8px; padding: 5px 10px; font-size: 12px;
+  border-bottom: 1px solid #f0f0f0; }
+#film-toggle { border: none; background: #eee; border-radius: 6px; width: 24px; height: 24px;
+  cursor: pointer; font-size: 13px; }
+#film-info { color: var(--muted); }
+#film-sel { color: #2e86de; margin-left: auto; }
+#film-bar button:not(#film-toggle) { padding: 4px 9px; border: 0; border-radius: 6px; background: #eee;
+  cursor: pointer; font-size: 12px; }
+#film-bar #film-place { background: #2e86de; color: #fff; }
+#film-bar #film-place:disabled { background: #9cc1ec; cursor: default; }
+#film-bar #film-skip:disabled { opacity: .5; cursor: default; }
+#film-bar #film-accept-matches { background: #2ecc71; color: #fff; }
+#film-track { display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding: 7px 10px 20px;
+  height: calc(var(--film-thumb) + 58px); align-items: flex-start; }
+.film-day { flex: none; writing-mode: vertical-rl; font-size: 10px; color: var(--muted);
+  align-self: center; padding: 0 2px; border-left: 1px solid #eee; }
+/* divider between on-map photos and the "to place" group */
+.film-sep { flex: none; writing-mode: vertical-rl; transform: rotate(180deg); align-self: stretch;
+  font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  color: #ff6d00; border-left: 2px solid #ff6d00; padding: 0 3px; margin: 0 4px; text-align: center; }
+.film-item { flex: none; width: var(--film-thumb); cursor: pointer; }
+.film-thumb-wrap { position: relative; }
+.film-thumb { width: var(--film-thumb); height: var(--film-thumb); border-radius: 6px; object-fit: cover;
+  background: #eee; display: block; border: 2px solid transparent; }
+.film-item.sel .film-thumb { border-color: #2e86de; box-shadow: 0 0 0 2px #2e86de33; }
+.film-item.ref:hover .film-thumb { border-color: #e91e63; }
+.film-badge { position: absolute; top: 4px; left: 4px; background: #ff6d00; color: #fff; font-size: 9px;
+  padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+.film-badge.gps { background: #2ecc71; }
+.film-badge.ai { background: #7d5ba6; max-width: calc(100% - 30px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.film-accept-one { position: absolute; bottom: 4px; right: 4px; width: 22px; height: 22px;
+  border: none; border-radius: 50%; background: #2ecc71; color: #fff; font-size: 13px;
+  line-height: 1; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+.film-accept-one:hover { background: #27ae60; }
+.film-date { font-size: 10px; color: var(--muted); text-align: center; margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: var(--film-thumb); }
+.film-empty { color: var(--muted); font-size: 13px; padding: 30px 12px; }
+/* Leader line (hovered filmstrip photo -> its spot on the map). <svg> is a
+   REPLACED element, so `inset:0` alone does NOT stretch it — without explicit
+   width/height it falls back to the intrinsic 300x150 and the line gets clipped
+   out of view. */
+#film-overlay { position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: 5; pointer-events: none; display: none; }
+#film-banner { display: none; position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--film-h) + 8px);
+  z-index: 9; background: #2e86de; color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px;
+  box-shadow: var(--shadow); }
+#app-toast { display: none; position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--film-h) + 8px);
+  z-index: 9; background: #222; color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px;
+  box-shadow: var(--shadow); max-width: 80vw; }
+
+/* place search */
+#search { position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 5; width: min(340px, 66vw); }
+#search-input { width: 100%; padding: 9px 13px; border: none; border-radius: 8px;
+  box-shadow: var(--shadow); font-size: 14px; background: var(--bg); color: var(--fg); }
+#search-results { margin-top: 4px; background: var(--bg); border-radius: 8px;
+  box-shadow: var(--shadow); max-height: 50vh; overflow-y: auto; display: none; }
+.search-item { padding: 8px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+.search-item:hover { background: #f5f7fa; }
+.search-item:last-child { border-bottom: 0; }
+.search-empty { padding: 8px 12px; font-size: 12px; color: var(--muted); }
+
+/* maplibre popup image */
+.maplibregl-popup-content { padding: 10px 12px 12px; border-radius: 10px; }
+.photo-popup b { font-size: 13px; }
+.photo-popup small { color: var(--muted); }
+.photo-popup img { display: block; margin-top: 6px; max-width: 300px; border-radius: 6px; cursor: zoom-in; }
+.hide-photo-btn { margin-top: 7px; padding: 4px 10px; border: 0; border-radius: 6px; cursor: pointer;
+  background: #fde8e8; color: #c0392b; font-size: 12px; }
+.photo-popup .badge { display: inline-block; background: #ffd34d; color: #5a4500;
+  border-radius: 4px; padding: 0 5px; font-size: 10px; margin-left: 4px; }
+
+/* 360 sphere modal */
+#pano { display: none; position: absolute; inset: 0; z-index: 10; background: #000; }
+#pano-host { position: absolute; inset: 44px 0 0; }
+#pano-bar { position: absolute; top: 0; left: 0; right: 0; height: 44px; z-index: 11;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 14px;
+  color: #fff; background: rgba(0,0,0,.6); font-size: 13px; }
+#pano-bar button { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }
+
+/* lightbox */
+#lightbox { display: none; position: absolute; inset: 0; z-index: 9; background: rgba(0,0,0,.9);
+  align-items: center; justify-content: center; cursor: zoom-out; }
+#lightbox img { max-width: 96vw; max-height: 96vh; border-radius: 6px; }
+
+/* POI editor */
+#add-poi-btn { bottom: calc(var(--film-h) + 14px); background: #2e86de;
+  color: #fff; font-size: 28px; }
+#add-poi-bar { display: none; position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: 28px; z-index: 5; background: var(--bg); padding: 8px 12px; border-radius: 10px;
+  box-shadow: var(--shadow); font-size: 13px; white-space: nowrap; }
+#add-poi-bar button { margin-left: 6px; padding: 5px 10px; border: 0; border-radius: 6px;
+  background: #eee; cursor: pointer; font-size: 12px; }
+#add-poi-bar #poi-here { background: #2e86de; color: #fff; }
+.poi-form h3 { margin: 0 0 8px; font-size: 14px; }
+.poi-form label { display: block; font-size: 12px; color: #555; margin-bottom: 7px; }
+.poi-form input, .poi-form select, .poi-form textarea { width: 100%; box-sizing: border-box;
+  padding: 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; margin-top: 2px; }
+.poi-coords { font-size: 11px; color: #999; margin: 4px 0 10px; }
+.poi-actions { display: flex; align-items: center; gap: 6px; }
+.poi-actions button { padding: 6px 12px; border: 0; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.poi-actions .primary { background: #2e86de; color: #fff; }
+.poi-actions .danger { background: #fde8e8; color: #c0392b; }
+
+/* geotag old photos */
+#geotag-btn { position: absolute; right: 14px; bottom: 90px; z-index: 4;
+  width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--bg);
+  font-size: 20px; cursor: pointer; box-shadow: var(--shadow); }
+#geotag-panel { position: absolute; top: 0; right: 0; bottom: 0; width: 330px; max-width: 88vw;
+  z-index: 8; background: var(--bg); box-shadow: -2px 0 14px rgba(0,0,0,.22);
+  transform: translateX(102%); transition: transform .22s ease; display: flex; flex-direction: column; }
+#geotag-panel.open { transform: none; }
+#geotag-header { display: flex; align-items: center; gap: 8px; padding: 12px 14px 8px; }
+#geotag-header b { font-size: 15px; }
+#geotag-count { color: var(--muted); font-size: 12px; }
+#geotag-close { margin-left: 6px; border: none; background: none; font-size: 18px; cursor: pointer; }
+#geotag-size { margin-left: auto; }
+#geotag-bar { display: flex; align-items: center; gap: 6px; padding: 0 14px 6px; }
+#geotag-selcount { font-size: 12px; color: var(--muted); margin-right: auto; }
+#geotag-bar button { padding: 5px 9px; border: 0; border-radius: 6px; background: #eee;
+  cursor: pointer; font-size: 12px; }
+#geotag-bar button:disabled { opacity: .45; cursor: default; }
+#geotag-place { background: #2e86de !important; color: #fff; }
+#geotag-place:disabled { background: #9cc1ec !important; }
+#geotag-hint { font-size: 11px; color: var(--muted); padding: 0 14px 8px; }
+#geotag-jump { margin: 0 14px 8px; padding: 5px 8px; border: 1px solid #ccc; border-radius: 6px;
+  font-size: 12px; background: var(--bg); color: var(--fg); max-width: calc(100% - 28px); }
+#geotag-list { --gt-tile: 96px; flex: 1; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 4px;
+  padding: 0 10px 14px; align-content: flex-start; }
+.geotag-group { flex-basis: 100%; display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; color: #444; padding: 8px 2px 2px; }
+.geotag-selall { margin-left: auto; border: 0; background: #eef3fb; color: #2e86de;
+  border-radius: 5px; padding: 2px 7px; font-size: 11px; cursor: pointer; }
+.geotag-tile { flex: none; width: var(--gt-tile); height: var(--gt-tile); border-radius: 6px;
+  overflow: hidden; cursor: pointer; border: 2px solid transparent; background: #f0f0f0; }
+#geotag-size { display: inline-flex; gap: 3px; }
+#geotag-size button { width: 22px; height: 22px; border: 0; border-radius: 5px; background: #eee;
+  cursor: pointer; font-size: 15px; line-height: 1; }
+.geotag-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.geotag-tile.sel { border-color: #2e86de; box-shadow: 0 0 0 2px #2e86de33; }
+.geotag-empty { font-size: 12px; color: var(--muted); padding: 16px 4px; }
+#geotag-banner { display: none; position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  z-index: 9; background: #2e86de; color: #fff; padding: 7px 14px; border-radius: 8px;
+  font-size: 13px; box-shadow: var(--shadow); }
+#geotag-toast { display: none; position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+  z-index: 9; background: #222; color: #fff; padding: 7px 14px; border-radius: 8px;
+  font-size: 13px; box-shadow: var(--shadow); max-width: 80vw; }
+
+/* trips panel (trips.js) */
+#trips-btn.active { background: var(--gold); }
+#trips { display: none; position: absolute; top: 10px; right: 54px; width: 330px; z-index: 6;
+  bottom: calc(var(--film-h) + 24px); background: var(--bg); border: 1px solid var(--rule);
+  border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; flex-direction: column; }
+#trips.on { display: flex; }
+#trips-head { display: flex; align-items: baseline; gap: 8px; padding: 10px 12px 6px; }
+#trips-head b { font-family: var(--f-display); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; font-size: 15px; }
+#trips-count { color: var(--muted); font-size: 12px; }
+#trips-close { margin-left: auto; border: none; background: none; cursor: pointer; color: var(--muted); font-size: 14px; }
+#trips-q { margin: 0 12px 8px; padding: 6px 8px; border: 1px solid var(--rule); border-radius: 6px; background: #fff; font: inherit; font-size: 13px; }
+#trips-list { overflow-y: auto; flex: 1; padding: 0 6px 10px; }
+#trips-detail { display: none; overflow-y: auto; flex: 1; }
+#trips.detail #trips-list, #trips.detail #trips-q { display: none; }
+#trips.detail #trips-detail { display: block; }
+.trip-year-h { display: flex; align-items: baseline; gap: 8px; width: 100%; border: none; background: none;
+  padding: 8px 6px; cursor: pointer; font: inherit; color: var(--fg); text-align: left; border-top: 1px solid var(--rule); }
+.trip-year-h b { font-size: 14px; } .trip-year-h span:last-child { color: var(--muted); font-size: 12px; }
+.trip-year-h .chev { width: 10px; color: var(--muted); }
+.trip-row { display: flex; gap: 10px; width: 100%; border: none; background: none; padding: 6px; border-radius: 8px;
+  cursor: pointer; text-align: left; font: inherit; color: var(--fg); }
+.trip-row:hover { background: rgba(37, 48, 58, .06); }
+.trip-row img, .trip-noimg { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; flex: none; background: var(--rule); }
+.trip-txt { display: flex; flex-direction: column; min-width: 0; }
+.trip-name { font-size: 13px; font-weight: 600; }
+.trip-sub { font-size: 12px; color: var(--muted); }
+.trip-empty { color: var(--muted); font-size: 13px; padding: 10px; }
+.trip-hero { width: 100%; height: 150px; object-fit: cover; display: block; }
+.trip-d { padding: 10px 12px 14px; }
+.trip-d-h { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+#trip-rename { margin-left: auto; border: 0; background: none; cursor: pointer; font-size: 13px; opacity: 0.45; padding: 2px 4px; }
+#trip-rename:hover { opacity: 1; }
+.trip-title-input { flex: 1; min-width: 0; font: inherit; font-weight: 700; padding: 2px 6px;
+  border: 1px solid #c9b98f; border-radius: 4px; background: #fffdf6; }
+#trips-back { border: 1px solid var(--rule); background: #fff; border-radius: 6px; cursor: pointer; padding: 1px 8px; }
+.trip-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 6px; margin: 10px 0; }
+.trip-stat { background: rgba(37, 48, 58, .05); border-radius: 6px; padding: 6px; }
+.trip-stat span { display: block; font-size: 11px; color: var(--muted); } .trip-stat b { font-size: 13px; }
+.trip-summary { font-size: 13px; line-height: 1.5; margin: 0 0 10px; }
+.trip-tracks-h { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.trip-track { display: block; width: 100%; text-align: left; font: inherit; font-size: 13px; color: var(--fg);
+  background: none; border: none; border-top: 1px solid var(--rule); padding: 6px 4px; cursor: pointer; }
+.trip-track:hover:not(:disabled) { background: rgba(37, 48, 58, .06); }
+.trip-track.sel { background: rgba(142, 27, 16, .1); font-weight: 600; }
+.trip-track:disabled { cursor: default; color: var(--muted); }
+
+@media (max-width: 640px) {
+  #panel-toggle { display: block; }
+  #panel-body { display: none; position: absolute; top: 46px; left: 0; }
+  #panel.open #panel-body { display: block; }
+  #trips { left: 10px; right: 10px; width: auto; top: 60px; }
+  /* an open trip shrinks to a sheet over the top of the map so the trip stays visible */
+  #trips.detail { bottom: auto; max-height: 42vh; }
+  #trips.detail .trip-hero { height: 90px; }
+}

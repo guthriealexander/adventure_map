@@ -1,0 +1,11 @@
+{
+  "_about": "Where home was, and when - build_trips.py calls a day 'away' when that day's photos/tracks reach more than AWAY_KM from the home in effect. Dates are inclusive ISO dates; use 9999-12-31 for 'still here'. With infer:true the exact spot is taken from your data (the most common overnight location near the point you give), so a town-level point is enough. Replace these examples with your own.",
+  "homes": [
+    {"name": "Example City", "from": "2010-01-01", "to": "2018-06-30", "lat": 45.52, "lon": -122.68, "infer": true},
+    {"name": "Example Town", "from": "2018-07-01", "to": "9999-12-31", "lat": 40.02, "lon": -105.27, "infer": true}
+  ],
+  "named_trips": [
+    {"name": "Example thru-hike", "from": "2016-04-15", "to": "2016-09-30", "note": "every away day in this span becomes one trip with this name"}
+  ],
+  "local_hikes": "hikes on home days are grouped per home and year, e.g. 'Local hikes around Example Town, 2024'"
+}

@@ -1,0 +1,14 @@
+# Adventure Map data pipeline — installed into the venv by setup.ps1.
+# Nightly job (auto_import.py): photos, Garmin, R2 upload
+Pillow
+pillow-heif
+piexif
+boto3
+garminconnect
+# map-matching / snapping scripts (snap_tracks.py, snap_regions.py, google_*.py)
+shapely
+numpy
+networkx
+duckdb
+# Claude API (tag_photos.py)
+anthropic

@@ -1,0 +1,23 @@
+# Cloudflare Pages project for the Adventure Map web app.
+# Static assets live in this folder; functions/ provides the same-origin /media/*
+# R2 proxy and the /api/* D1 endpoints. A Cloudflare Access application on the
+# Pages domain (and *.<domain> for preview deployments) protects everything.
+#
+# Deploy from THIS folder (`npx wrangler pages deploy`) so the Functions get the
+# R2 and D1 bindings below.
+
+name = "adventure-map"                 # your Pages project name (site.env AM_PAGES_PROJECT)
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "."
+
+# R2 bucket exposed to functions as env.MEDIA (holds photos/, data/, tiles/).
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "photos"                 # your R2 bucket (.r2.env R2_BUCKET)
+
+# D1 for your edits (POIs, geotags, hidden photos, trip names) - env.DB.
+# Create it with `npx wrangler d1 create adventure-map` and paste the id here.
+[[d1_databases]]
+binding = "DB"
+database_name = "adventure-map"
+database_id = "REPLACE-WITH-YOUR-D1-DATABASE-ID"

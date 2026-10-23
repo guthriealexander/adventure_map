@@ -1,0 +1,4 @@
+# Photos that must never be published: one photo id per line ('#' starts a comment).
+# Every publish step filters these out - the map tiles, the R2 upload, the trips and
+# the geotag gallery - and `python upload_r2.py purge-private` deletes any copies
+# already uploaded. tag_photos.py adds photos the AI flags as sensitive automatically.

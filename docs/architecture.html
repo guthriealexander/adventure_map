@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}</style>
+<title>Adventure Map Cut Sheet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a survey-sheet collar (title block) over a four-lane flow diagram that reads
+   left to right in data order, then spec tables; lanes stack top to bottom on phones. */
+:root {
+  --paper: #f3f6f3;
+  --sheet: #ffffff;
+  --ink: #17231e;
+  --muted: #56645d;
+  --rule: #d3dcd6;
+  --chip: #e8efea;
+  --local: #a5622a;      /* your computer: contour brown */
+  --cloud: #2c6a4e;      /* Cloudflare: survey green */
+  --browser: #2b6a9f;    /* the browser: water blue */
+  --ext: #7a6a8f;        /* outside services */
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1512; --sheet: #151d19; --ink: #e2eae5; --muted: #9caba3; --rule: #29352f; --chip: #1c2722;
+    --local: #d9965c; --cloud: #6cc09a; --browser: #7fb4e2; --ext: #b4a5cc; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f1512; --sheet: #151d19; --ink: #e2eae5; --muted: #9caba3; --rule: #29352f; --chip: #1c2722;
+  --local: #d9965c; --cloud: #6cc09a; --browser: #7fb4e2; --ext: #b4a5cc; color-scheme: dark;
+}
+
+body {
+  background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+p { margin: 0; }
+code, .mono { font-family: var(--mono); font-size: 0.86em; }
+a { color: var(--cloud); }
+:focus-visible { outline: 2px solid var(--browser); outline-offset: 2px; }
+
+/* ---- collar / title block */
+.collar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: end;
+  border-bottom: 3px double var(--ink); padding-bottom: 18px; }
+.collar h1 { font-size: clamp(42px, 7vw, 76px); line-height: 0.92; font-weight: 700; letter-spacing: 0.01em; text-transform: uppercase; }
+.collar .lede { margin-top: 12px; max-width: 62ch; color: var(--muted); font-size: 16px; }
+.titleblock { display: grid; grid-template-columns: auto auto; border: 1px solid var(--ink); font-size: 12.5px; min-width: 0; }
+.titleblock div { padding: 6px 12px; border-bottom: 1px solid var(--rule); }
+.titleblock div:nth-last-child(-n+2) { border-bottom: 0; }
+.titleblock .k { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px;
+  color: var(--muted); border-right: 1px solid var(--rule); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { width: 14px; height: 3px; display: inline-block; }
+
+/* ---- section heads */
+.sec { display: grid; gap: 16px; }
+.sec > header { display: flex; align-items: baseline; gap: 14px; border-bottom: 1px solid var(--rule); padding-bottom: 8px; flex-wrap: wrap; }
+.sec h2 { font-size: 28px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.sec header p { color: var(--muted); font-size: 14px; }
+
+/* ---- the flow: four lanes */
+.flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
+.lane { position: relative; display: grid; align-content: start; gap: 10px; padding: 0 18px 4px; border-left: 1px dashed var(--rule); min-width: 0; }
+.lane:first-child { border-left: 0; padding-left: 0; }
+.lane:last-child { padding-right: 0; }
+.lane > .lh { display: grid; gap: 2px; padding-bottom: 8px; border-bottom: 3px solid var(--c); }
+.lane .step { font-family: var(--display); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--c); font-weight: 600; }
+.lane h3 { font-size: 23px; font-weight: 600; line-height: 1.05; }
+.lane .where { font-size: 12.5px; color: var(--muted); }
+.lane:not(:last-child)::after { content: "→"; position: absolute; right: -9px; top: 22px; font-size: 18px; color: var(--muted);
+  background: var(--paper); line-height: 1; padding: 2px 0; }
+.node { background: var(--sheet); border: 1px solid var(--rule); border-top: 2px solid var(--c); padding: 10px 12px; display: grid; gap: 4px; min-width: 0; }
+.node b { font-weight: 600; font-size: 14.5px; }
+.node p { font-size: 13px; color: var(--muted); }
+.node code { overflow-wrap: anywhere; }
+.local { --c: var(--local); } .cloud { --c: var(--cloud); } .browser { --c: var(--browser); } .ext { --c: var(--ext); }
+.tagrow { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag { font-family: var(--mono); font-size: 11.5px; background: var(--chip); padding: 1px 6px; border-radius: 3px; }
+
+.feeds { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.feeds .node { border-top-style: dotted; }
+
+/* ---- nightly run: a real sequence */
+.run { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0;
+  border: 1px solid var(--rule); background: var(--sheet); counter-reset: s; }
+.run li { counter-increment: s; padding: 12px 14px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: grid; gap: 4px; align-content: start; min-width: 0; }
+.run li::before { content: counter(s); font-family: var(--display); font-weight: 700; font-size: 26px; line-height: 1; color: var(--local); }
+.run b { font-family: var(--display); font-size: 17px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.run p { font-size: 12.5px; color: var(--muted); }
+
+/* ---- spec tables */
+.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.tbl { overflow-x: auto; border: 1px solid var(--rule); background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule); }
+tr:last-child td { border-bottom: 0; }
+th { font-family: var(--display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; font-size: 12.5px; color: var(--muted); background: var(--chip); }
+td:first-child { white-space: nowrap; font-weight: 500; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.keys { font-family: var(--mono); font-size: 13px; background: var(--sheet); border: 1px solid var(--rule); padding: 14px 16px; overflow-x: auto; line-height: 1.75; margin: 0; }
+.keys .c { color: var(--muted); }
+
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 28px; }
+.notes div { display: grid; gap: 4px; }
+.notes b { font-family: var(--display); font-size: 17px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.notes p { font-size: 13.5px; color: var(--muted); max-width: 60ch; }
+
+footer { border-top: 3px double var(--ink); padding-top: 14px; font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+
+@media (max-width: 900px) {
+  .flow { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .lane { border-left: 0; padding: 0; }
+  .lane:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -24px; }
+  .cols { grid-template-columns: minmax(0, 1fr); }
+  .collar { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .node { transition: border-color .15s; }
+  .node:hover { border-color: var(--c); }
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <header class="collar">
+    <div>
+      <h1>Adventure Map</h1>
+      <p class="lede">How the pieces fit: your photos and tracks go through a Python pipeline on your
+        own computer, into Cloudflare storage behind a login, and out to a MapLibre map in the browser.
+        No servers to run, no build step, and the free tiers cover one person.</p>
+    </div>
+    <div class="titleblock" role="table" aria-label="Sheet details">
+      <div class="k">Sheet</div><div>Technical cut sheet</div>
+      <div class="k">Edition</div><div>October 2026</div>
+      <div class="k">Map engine</div><div>MapLibre GL JS 6</div>
+      <div class="k">Hosting</div><div>Cloudflare Pages, R2, D1, Access</div>
+      <div class="k">Pipeline</div><div>Python 3.12, GDAL, DuckDB</div>
+      <div class="k">License</div><div>MIT</div>
+    </div>
+  </header>
+
+  <div class="legend" aria-label="Legend">
+    <span><i style="background:var(--local)"></i>Runs on your computer</span>
+    <span><i style="background:var(--cloud)"></i>Cloudflare, behind Access</span>
+    <span><i style="background:var(--browser)"></i>In the browser</span>
+    <span><i style="background:var(--ext)"></i>Outside services</span>
+  </div>
+
+  <section class="sec" aria-labelledby="flow-h">
+    <header><h2 id="flow-h">Data flow</h2><p>Left to right is the order data moves in.</p></header>
+    <div class="flow">
+
+      <div class="lane ext">
+        <div class="lh"><span class="step">1 · Sources</span><h3>What you bring</h3><span class="where">files and accounts you already have</span></div>
+        <div class="node"><b>Geotagged photos</b><p>Any folder: phone camera roll, camera cards, 360° panoramas.</p></div>
+        <div class="node"><b>Garmin Connect</b><p>Activities with GPS, synced every night after a one-time login.</p></div>
+        <div class="node"><b>Google Takeout</b><p>Location history and Timeline exports, imported once.</p></div>
+        <div class="node"><b>GPX files</b><p>From any app or old handheld GPS, via <code>import_gpx.py</code>.</p></div>
+        <div class="node"><b>homes.json</b><p>Where home was, and when. Trips are the days you were away.</p></div>
+      </div>
+
+      <div class="lane local">
+        <div class="lh"><span class="step">2 · Pipeline</span><h3>data-pipeline/</h3><span class="where">your computer, nightly via Task Scheduler</span></div>
+        <div class="node"><b>Ingest</b><p>Scan photos, give each a stable id, make thumb / web / pano WebP copies.</p>
+          <div class="tagrow"><span class="tag">photos_ingest.py</span><span class="tag">Pillow</span></div></div>
+        <div class="node"><b>Tracks</b><p>GeoJSON lines, optionally map-matched to the trail and road network.</p>
+          <div class="tagrow"><span class="tag">snap_regions.py</span><span class="tag">DuckDB</span><span class="tag">networkx</span></div></div>
+        <div class="node"><b>Tiles</b><p>GeoJSON to PMTiles, z0–13; photo dots thinned per zoom band.</p>
+          <div class="tagrow"><span class="tag">build_pmtiles.py</span><span class="tag">GDAL ogr2ogr</span></div></div>
+        <div class="node"><b>Trips</b><p>Home / away per day, trips, areas, drives; then names and summaries.</p>
+          <div class="tagrow"><span class="tag">build_trips.py</span><span class="tag">name_trips.py</span><span class="tag">shapely</span></div></div>
+        <div class="node"><b>Publish</b><p>Upload to R2, deploy the site, then check the login gate still holds.</p>
+          <div class="tagrow"><span class="tag">upload_r2.py</span><span class="tag">wrangler</span></div></div>
+      </div>
+
+      <div class="lane cloud">
+        <div class="lh"><span class="step">3 · Cloud</span><h3>Cloudflare</h3><span class="where">one account, everything behind Access</span></div>
+        <div class="node"><b>Access</b><p>The login. Covers the site and every preview deployment (<code>*.project.pages.dev</code>).</p></div>
+        <div class="node"><b>R2 bucket</b><p>Photo copies, versioned tile archives, trips and other JSON.</p>
+          <div class="tagrow"><span class="tag">S3 API</span><span class="tag">boto3</span></div></div>
+        <div class="node"><b>Pages</b><p>Serves <code>web/</code> as static files. No build step.</p></div>
+        <div class="node"><b>Pages Functions</b><p><code>/media/*</code> streams R2 with HTTP range requests; <code>/api/*</code> reads and writes D1.</p></div>
+        <div class="node"><b>D1 database</b><p>Your edits in the app: places, geotags, hidden photos, trail picks, trip names.</p>
+          <div class="tagrow"><span class="tag">SQLite</span></div></div>
+      </div>
+
+      <div class="lane browser">
+        <div class="lh"><span class="step">4 · Browser</span><h3>web/</h3><span class="where">plain JavaScript, no bundler</span></div>
+        <div class="node"><b>MapLibre GL JS</b><p>Globe projection, 3D terrain, vector and PMTiles sources.</p>
+          <div class="tagrow"><span class="tag">pmtiles</span><span class="tag">app.js</span></div></div>
+        <div class="node"><b>Basemap styles</b><p>Liberty by default. Add your own in <code>config.js</code>: a style URL, a style object or a <code>build()</code> function, with hooks for screen effects and data anchors.</p>
+          <div class="tagrow"><span class="tag">config.js</span></div></div>
+        <div class="node"><b>Panels</b><p>Layers, trips, filmstrip of photos in view, geotag gallery, place editor.</p>
+          <div class="tagrow"><span class="tag">trips.js</span><span class="tag">filmstrip.js</span><span class="tag">pois.js</span></div></div>
+        <div class="node"><b>Local mode</b><p>On localhost the same app reads <code>data-pipeline/out/</code> directly.</p>
+          <div class="tagrow"><span class="tag">dev_server.py</span></div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="ext-h">
+    <header><h2 id="ext-h">Outside services</h2><p>Called by the pipeline or the browser; none hold your data.</p></header>
+    <div class="feeds ext">
+      <div class="node"><b>OpenFreeMap</b><p>The Liberty basemap style and its vector tiles. Key-free.</p></div>
+      <div class="node"><b>OpenStreetMap US</b><p>Hillshade under the basemap and the trails overlay. Read by the browser.</p></div>
+      <div class="node"><b>Claude API</b><p>Haiku vision tags photos and suggests places; names tracks and trips. Optional.</p></div>
+      <div class="node"><b>Overture Maps</b><p>Road and path segments for snapping tracks, queried per region with DuckDB.</p></div>
+      <div class="node"><b>Nominatim and Photon</b><p>Place search in the app; reverse geocoding for trip names.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="run-h">
+    <header><h2 id="run-h">The nightly run</h2><p><code>auto_import.py</code>, in this order. Every step only does new work, so a failed run is safe to repeat.</p></header>
+    <ol class="run">
+      <li><b>Scan</b><p>New geotagged photos in the photo folder; photos without GPS go to the geotag gallery.</p></li>
+      <li><b>Tag</b><p>Claude captions new photos, hides accidental shots, flags private ones.</p></li>
+      <li><b>Upload photos</b><p>Only copies not already in R2.</p></li>
+      <li><b>Garmin</b><p>New activities since the last sync.</p></li>
+      <li><b>Tiles</b><p>Rebuild changed layers; upload under content-hashed names; update <code>tiles.json</code>.</p></li>
+      <li><b>Trips</b><p>Detect, name tracks, name trips, upload.</p></li>
+      <li><b>Deploy</b><p>Stamp asset versions, <code>wrangler pages deploy</code>.</p></li>
+      <li><b>Verify</b><p>The site and a preview hostname must redirect to the login.</p></li>
+    </ol>
+  </section>
+
+  <div class="cols">
+    <section class="sec" aria-labelledby="keys-h">
+      <header><h2 id="keys-h">Storage layout</h2></header>
+<pre class="keys" aria-label="R2 key layout">r2://photos/
+  photos/<span class="c">&lt;id&gt;</span>/thumb.webp   <span class="c">~320 px, map hover + filmstrip</span>
+  photos/<span class="c">&lt;id&gt;</span>/web.webp     <span class="c">~1600 px, photo popup</span>
+  photos/<span class="c">&lt;id&gt;</span>/pano.webp    <span class="c">~4096 px, 360° viewer</span>
+  tiles/<span class="c">&lt;layer&gt;.&lt;hash&gt;</span>.pmtiles   <span class="c">kept 3 versions deep</span>
+  data/tiles.json             <span class="c">current version per layer</span>
+  data/trips.json             <span class="c">the Trips panel</span>
+  data/trips/<span class="c">&lt;trip&gt;</span>.json      <span class="c">one trip's photo points</span>
+
+d1://adventure-map
+  pois · photo_geotags · hidden_photos
+  hiked_trails · trip_names</pre>
+      <p class="mono" style="color:var(--muted);font-size:12.5px">Photo id = sha1(filename | timestamp), first 16 hex digits: stable across moves, dedupes copies.</p>
+    </section>
+
+    <section class="sec" aria-labelledby="cost-h">
+      <header><h2 id="cost-h">Running costs</h2><p>One person, typical library.</p></header>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Service</th><th>Use</th><th>Cost</th></tr></thead>
+          <tbody>
+            <tr><td>Pages + Functions</td><td>site and API</td><td class="num">free tier</td></tr>
+            <tr><td>R2</td><td>a few GB of photo copies and tiles</td><td class="num">free to 10 GB</td></tr>
+            <tr><td>D1</td><td>your edits</td><td class="num">free tier</td></tr>
+            <tr><td>Access</td><td>the login</td><td class="num">free to 50 users</td></tr>
+            <tr><td>Claude API</td><td>tag a whole library once (Batches)</td><td class="num">a few dollars</td></tr>
+            <tr><td>Claude API</td><td>nightly tags, names, suggestions</td><td class="num">cents</td></tr>
+            <tr><td>Map data</td><td>OpenFreeMap, OSM US, Overture</td><td class="num">free, credited</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="sec" aria-labelledby="priv-h">
+    <header><h2 id="priv-h">Privacy, by design</h2><p>The map is of your life; it stays yours.</p></header>
+    <div class="notes">
+      <div><b>One login for everything</b><p>Cloudflare Access sits in front of the page, the photos, the tiles and the API. The nightly run raises an alert if any of them answers without it.</p></div>
+      <div><b>Private photo list</b><p><code>private_photos.txt</code> is filtered out of every publish step, and a purge command removes copies already uploaded.</p></div>
+      <div><b>Sensitive photos flagged</b><p>The tagging step marks photos of people undressed or children bathing as private automatically.</p></div>
+      <div><b>Credentials stay local</b><p>R2, Garmin and Claude keys live in gitignored files beside the pipeline and never reach the site.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="render-h">
+    <header><h2 id="render-h">The layer stack</h2><p>Bottom to top, on every style.</p></header>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Layer group</th><th>What it is</th><th>Built from</th></tr></thead>
+        <tbody>
+          <tr><td>Under the basemap</td><td>hillshade and satellite imagery, both optional</td><td>OpenStreetMap US raster hillshade, Esri imagery</td></tr>
+          <tr><td>Basemap</td><td>land, water, roads, labels</td><td>the chosen style (Liberty by default)</td></tr>
+          <tr><td>Overlays</td><td>OpenStreetMap trails</td><td>OpenStreetMap US vector tiles</td></tr>
+          <tr><td>Your data</td><td>tracks, roads travelled, hikes, photos, trip highlights</td><td>PMTiles from R2 and per-trip GeoJSON</td></tr>
+          <tr><td>Your places</td><td>always the top layer, in every style</td><td>D1 through <code>/api/pois</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <span>Basemap: OpenFreeMap Liberty, © OpenStreetMap contributors · Hillshade and trails: OpenStreetMap US · Rendering: MapLibre GL JS</span>
+    <span>Adventure Map framework · MIT</span>
+  </footer>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+# credentials and personal settings - never commit
+data-pipeline/.r2.env
+data-pipeline/.garmin.env
+data-pipeline/.anthropic.env
+data-pipeline/.garmin/
+data-pipeline/site.env
+
+# everything generated from your own data
+data-pipeline/out/
+data-pipeline/derivatives/
+data-pipeline/logs/
+data-pipeline/*.log
+data-pipeline/garmin_state.json
+data-pipeline/google_exports/
+data-pipeline/run_auto_import.cmd
+__pycache__/
+node_modules/
+.wrangler/
